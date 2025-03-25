@@ -1,0 +1,50 @@
+{
+  "name": "@surface.dev/mcp",
+  "version": "0.0.1",
+  "description": "MCP SDK for Surface",
+  "keywords": [
+    "javascript",
+    "typescript",
+    "surface",
+    "surface.dev",
+    "mcp"
+  ],
+  "homepage": "https://github.com/surface-dot-dev/mcp",
+  "bugs": "https://github.com/surface-dot-dev/mcp/issues",
+  "license": "MIT",
+  "author": "Surface (https://surface.dev)",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "dist/main/index.js",
+  "module": "dist/module/index.js",
+  "types": "dist/main/index.d.ts",
+  "sideEffects": false,
+  "repository": "surface-dot-dev/mcp",
+  "scripts": {
+    "clean": "rimraf dist",
+    "format": "prettier --write \"{src,test}/**/*.{ts,tsx}\"",
+    "build": "run-s clean format build:*",
+    "build:main": "tsc -p tsconfig.json",
+    "build:module": "tsc -p tsconfig.module.json",
+    "types-generate": "dts-gen -m '@surface.dev/mcp' -s"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": ">=1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.8",
+    "husky": "^4.3.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.1.2",
+    "pretty-quick": "^3.1.0",
+    "rimraf": "^3.0.2",
+    "typescript": "5.5.3"
+  }
+}
