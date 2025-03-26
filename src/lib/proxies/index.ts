@@ -7,7 +7,10 @@ const getProxy = (): ToolProxyInterface => {
   return isSwiftRuntime() ? new SwiftProxy() : new TsProxy();
 };
 
-export const ToolProxy = <I, O>({ name, outputSchema }: NewToolProxyParams): ToolProxyType<I, O> => {
+export const ToolProxy = <I, O>({
+  name,
+  outputSchema,
+}: NewToolProxyParams): ToolProxyType<I, O> => {
   return async (input: I, dataSource: DataSource) => {
     return getProxy().callTool<I, O>({ name, input, outputSchema, dataSource });
   };
