@@ -3,14 +3,16 @@ import { zodToJsonSchema } from 'zod-to-json-schema';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as errors from '../errors';
-import { Tool, Resource } from '../types';
 import {
+  Tool, 
+  Resource, 
+  Resources,
   ToolInput,
   CallToolRequestSchema,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
-} from './types';
+} from '../types';
 
 const DEFAULT_SERVER_OPTS = {
   capabilities: {
@@ -23,8 +25,7 @@ export type StdioServerParams = {
   name: string;
   version: string;
   tools?: Tool[];
-  listResources?: () => Promise<Resource[]>;
-  readResource?: (uri: string) => Promise<Resource>;
+  resources?: Resources;
 };
 
 export class StdioServer {
@@ -35,7 +36,7 @@ export class StdioServer {
   private server: Server;
   private transport: StdioServerTransport;
 
-  constructor({ name, version, tools, listResources, readResource }: StdioServerParams) {
+  constructor({ name, version, tools, resources }: StdioServerParams) {
     this.name = name;
     this.version = version;
     this.tools = tools || [];
@@ -48,8 +49,8 @@ export class StdioServer {
     // Register tool & resource handlers.
     this._setupListToolsHandler();
     this._setupCallToolHandler();
-    this._setupListResourcesHandler(listResources);
-    this._setupReadResourceHandler(readResource);
+    this._setupListResourcesHandler(resources?.list);
+    this._setupReadResourceHandler(resources?.read);
   }
 
   async connect() {
@@ -92,6 +93,7 @@ export class StdioServer {
         throw error;
       }
 
+      // Call tool & return output as stringified text ('bytes' type not yet supported).
       try {
         const output = await tool.call(parsed.data);
         return { content: [{ type: 'text', text: JSON.stringify(output) }] };
