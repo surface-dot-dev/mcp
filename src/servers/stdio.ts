@@ -67,7 +67,7 @@ export class StdioServer {
     this.server.setRequestHandler(CallToolRequestSchema, async ({ params }) => {
       const { name, arguments: args } = params;
 
-      // Ensure the tool actually exists.
+      // Ensure tool actually exists.
       const tool = this.toolsMap[name];
       if (!tool) {
         const error = formatError(errors.TOOL_NOT_FOUND, name);
@@ -75,7 +75,7 @@ export class StdioServer {
         throw error;
       }
 
-      // Ensure args match the tool's defined input schema.
+      // Validate input args structure.
       const parsed = tool.inputSchema.safeParse(args);
       if (!parsed.success) {
         const error = formatError(errors.INVALID_TOOL_INPUT, parsed.error, { name, args });
@@ -83,20 +83,14 @@ export class StdioServer {
         throw error;
       }
 
-      // Call the tool & stringify the output.
-      let text: string;
       try {
         const output = await tool.call(parsed.data);
-        text = JSON.stringify(output);
+        return { content: [{ type: 'text', text: JSON.stringify(output) }] };
       } catch (err: unknown) {
         const error = formatError(errors.TOOL_CALL_FAILED, err, { name, args });
         logger.error(error);
         throw error;
       }
-
-      return { 
-        content: [{ type: 'text', text }] 
-      };
     });
   }
 
@@ -118,11 +112,14 @@ export class StdioServer {
   }
 
   private _setupReadResourceHandler(readResource?: (uri: string) => Promise<Resource>) {
-    this.server.setRequestHandler(ReadResourceRequestSchema, async ({ params: { uri } }) => {
+    this.server.setRequestHandler(ReadResourceRequestSchema, async ({ params }) => {
+      const { uri } = params;
+
       if (!readResource) {
         logger.error(errors.READ_RESOURCE_NOT_CONFIGURED);
         throw errors.READ_RESOURCE_NOT_CONFIGURED;
       }
+
       try {
         const resource = await readResource(uri);
         const contents = Array.isArray(resource) ? resource : [resource];
