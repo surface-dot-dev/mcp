@@ -1,13 +1,17 @@
-import { Resource as McpResource, Tool as McpTool } from '@modelcontextprotocol/sdk/types';
 import { z } from 'zod';
 
-export type Tool = McpTool & {
-  inputSchema: z.ZodSchema;
+export type Tool = {
+  name: string;
+  description?: string;
+  inputSchema: z.ZodType;
   call: (input: any) => Promise<any>;
 };
 
-export type Resource = McpResource & {
+export type Resource = {
+  uri: string;
   handle: string;
   name?: string;
+  mimeType?: string;
+  description?: string;
   text?: string;
 };
