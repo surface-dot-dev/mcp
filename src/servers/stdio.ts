@@ -32,7 +32,9 @@ export class StdioServer {
     this.name = name;
     this.version = version;
     this.tools = tools || [];
-    this.tools.forEach(tool => { this.toolsMap[tool.name] = tool; });
+    this.tools.forEach((tool) => {
+      this.toolsMap[tool.name] = tool;
+    });
     this.server = new Server({ name, version });
     this.transport = new StdioServerTransport();
 
