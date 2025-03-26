@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ToolSchema } from '@modelcontextprotocol/sdk/types';
+import { ToolSchema } from '@modelcontextprotocol/sdk/types.js';
 
 export type ToolInput = z.infer<typeof ToolSchema.shape.inputSchema>;
 
@@ -8,4 +8,4 @@ export {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
-} from '@modelcontextprotocol/sdk/types';
+} from '@modelcontextprotocol/sdk/types.js';

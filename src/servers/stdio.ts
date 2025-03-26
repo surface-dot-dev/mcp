@@ -1,7 +1,7 @@
 import { logger, formatError } from '@surface.dev/utils';
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import { Server } from '@modelcontextprotocol/sdk/server/index';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio';
+import { Server } from '@modelcontextprotocol/sdk/server/index.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as errors from '../errors';
 import { Tool, Resource } from '../types';
 import {
@@ -11,6 +11,13 @@ import {
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
 } from './types';
+
+const DEFAULT_SERVER_OPTS = {
+  capabilities: {
+    tools: {},
+    resources: {},
+  },
+};
 
 export type StdioServerParams = {
   name: string;
@@ -35,7 +42,7 @@ export class StdioServer {
     this.tools.forEach((tool) => {
       this.toolsMap[tool.name] = tool;
     });
-    this.server = new Server({ name, version });
+    this.server = new Server({ name, version }, DEFAULT_SERVER_OPTS);
     this.transport = new StdioServerTransport();
 
     // Register tool & resource handlers.
