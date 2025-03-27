@@ -49,7 +49,7 @@ export class StdioProxy {
       await this.client.connect(transport);
       this.isInitialized = true;
       logger.info('MCP proxy connected.');
-    } catch (err: unknown) {
+    } catch (err) {
       throw formatError(errors.MCP_CONNECTION_ERROR, err);
     }
   }
@@ -64,7 +64,7 @@ export class StdioProxy {
     let result: ToolCallResult;
     try {
       result = (await this.client.callTool({ name, arguments: input || {} })) as ToolCallResult;
-    } catch (err: unknown) {
+    } catch (err) {
       throw formatError(errors.PERFORMING_TOOL_CALL_FAILED, err, errorParams);
     }
 

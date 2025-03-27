@@ -1,14 +1,6 @@
-// ============================
-//  General Errors
-// ============================
-
 export const UNKNOWN_ERROR = 'Unknown error';
 
 export const ROUTE_NOT_SUPPORTED = 'Route not supported';
-
-// ============================
-//  Proxy Errors
-// ============================
 
 export const STDIO_SERVER_PATH_NOT_SET = 'Environment variable "STDIO_SERVER_PATH" not set';
 
@@ -29,19 +21,13 @@ export const UNSUPPORTED_TOOL_CALL_RESULT_CONTENT_TYPE =
 
 export const ERROR_PARSING_TOOL_RESPONSE = 'Error parsing tool response';
 
-// ============================
-//  Tool Errors
-// ============================
-
 export const TOOL_NOT_FOUND = 'Tool not found';
 
 export const INVALID_TOOL_INPUT = 'Invalid tool input arguments';
 
-export const TOOL_CALL_FAILED = 'Tool call failed';
+export const INVALID_TOOL_OUTPUT = 'Invalid tool output';
 
-// ============================
-//  Resource Errors
-// ============================
+export const TOOL_CALL_FAILED = 'Tool call failed';
 
 export const LISTING_RESOURCES_FAILED = 'Failed to list resources';
 

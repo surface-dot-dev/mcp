@@ -5,15 +5,16 @@ import fs from 'fs';
 import { CallToolProxyPayload } from './lib/types';
 import { ev, formatError, undelimit, logger } from '@surface.dev/utils';
 import { StdioProxy } from './lib/proxies/stdioProxy';
-import { paths, methods, status, headers } from './lib/utils/http';
+import { methods, status, headers } from './lib/utils/http';
 import * as errors from './lib/errors';
+import { DEFAULT_PROXY_PORT, PROXY_TOOL_CALL_PATH } from './lib/constants';
 
 // ============================
 //  Constants
 // ============================
 
 const config = {
-  PORT: Number(ev('MCP_PROXY_PORT', 4444)),
+  PORT: Number(ev('MCP_PROXY_PORT', DEFAULT_PROXY_PORT)),
   MCP_SERVER_PATH: ev('MCP_SERVER_PATH', ''),
   MCP_SERVER_ENV_VARS: undelimit(ev('MCP_SERVER_ENV_VARS', '')).filter((v) => !!v),
 };
@@ -69,7 +70,7 @@ async function proxyToolCall(req: http.IncomingMessage, res: http.ServerResponse
   try {
     const data = await collectRequestData(req);
     payload = parseAndValidatePayload(data);
-  } catch (err: unknown) {
+  } catch (err) {
     const error = err as Error;
     logger.error(error.message);
     res.writeHead(status.INVALID_PAYLOAD, headers.JSON);
@@ -94,7 +95,7 @@ async function proxyToolCall(req: http.IncomingMessage, res: http.ServerResponse
 const httpProxy = http.createServer();
 
 httpProxy.on('request', async (req, res) => {
-  if (req.method === methods.POST && req.url === paths.CALL_TOOL) {
+  if (req.method === methods.POST && req.url === PROXY_TOOL_CALL_PATH) {
     await proxyToolCall(req, res);
     return;
   }

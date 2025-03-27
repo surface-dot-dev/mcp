@@ -14,7 +14,3 @@ export const methods = {
 export const headers = {
   JSON: { 'Content-Type': 'application/json' },
 };
-
-export const paths = {
-  CALL_TOOL: '/' + CallToolRequestSchema.shape.method.value,
-};
