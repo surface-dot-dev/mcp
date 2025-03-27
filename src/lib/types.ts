@@ -56,7 +56,7 @@ export type CallToolParams<I> = {
 export type CallToolProxyPayload = {
   name: string;
   input: any;
-}
+};
 
 export type ToolCallResult = {
   isError?: boolean;

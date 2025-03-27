@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { ev, formatError, safeJsonStringify as stringify } from '@surface.dev/utils';
+import { ev, formatError, safeJsonStringify as stringify, logger } from '@surface.dev/utils';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { ToolCallResult, ToolCallResultContentType } from '../types';
@@ -19,7 +19,7 @@ const CLIENT_OPTS = {
 
 export type StdioProxyParams = {
   serverPath: string;
-  envVars?: string[]
+  envVars?: string[];
 };
 
 export class StdioProxy {
@@ -30,7 +30,9 @@ export class StdioProxy {
 
   constructor({ serverPath, envVars = [] }: StdioProxyParams) {
     this.serverPath = serverPath;
-    envVars.forEach((name) => { this.envsMap[name] = ev(name, ''); });
+    envVars.forEach((name) => {
+      this.envsMap[name] = ev(name, '');
+    });
     this.client = new Client(CLIENT_PARAMS, CLIENT_OPTS);
   }
 
@@ -40,12 +42,13 @@ export class StdioProxy {
     }
     try {
       const transport = new StdioClientTransport({
-        command: 'node',
+        command: process.execPath,
         args: [this.serverPath],
         env: this.envsMap,
       });
       await this.client.connect(transport);
       this.isInitialized = true;
+      logger.info('MCP proxy connected.');
     } catch (err: unknown) {
       throw formatError(errors.MCP_CONNECTION_ERROR, err);
     }

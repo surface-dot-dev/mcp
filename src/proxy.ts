@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as http from 'http';
 import fs from 'fs';
 import { CallToolProxyPayload } from './lib/types';
@@ -13,10 +15,10 @@ import * as errors from './lib/errors';
 const config = {
   PORT: Number(ev('MCP_PROXY_PORT', 4444)),
   MCP_SERVER_PATH: ev('MCP_SERVER_PATH', ''),
-  MCP_SERVER_ENV_VARS: undelimit(ev('MCP_SERVER_ENV_VARS', '')).filter(v => !!v),
+  MCP_SERVER_ENV_VARS: undelimit(ev('MCP_SERVER_ENV_VARS', '')).filter((v) => !!v),
 };
 
-if (!config.MCP_SERVER_PATH){
+if (!config.MCP_SERVER_PATH) {
   throw formatError(errors.STDIO_SERVER_PATH_NOT_SET);
 }
 
@@ -29,8 +31,8 @@ if (!fs.existsSync(serverPath)) {
   throw formatError(errors.STDIO_SERVER_FILE_NOT_FOUND, serverPath);
 }
 
-const mcpServer = new StdioProxy({ 
-  serverPath, 
+const mcpServer = new StdioProxy({
+  serverPath,
   envVars: config.MCP_SERVER_ENV_VARS,
 });
 
@@ -41,7 +43,9 @@ const mcpServer = new StdioProxy({
 async function collectRequestData(req: http.IncomingMessage): Promise<string> {
   let data = '';
   return new Promise((resolve) => {
-    req.on('data', chunk => { data += chunk; });
+    req.on('data', (chunk) => {
+      data += chunk;
+    });
     req.on('end', () => resolve(data));
   });
 }
@@ -95,10 +99,10 @@ httpProxy.on('request', async (req, res) => {
     return;
   }
   res.writeHead(status.NOT_FOUND, headers.JSON);
-  res.end(JSON.stringify({ error: errors.ROUTE_NOT_SUPPORTED }));  
+  res.end(JSON.stringify({ error: errors.ROUTE_NOT_SUPPORTED }));
 });
 
 httpProxy.listen(config.PORT, async () => {
-  console.log(`Server running on port ${config.PORT}...`);
+  logger.info(`HTTP proxy running on port ${config.PORT}...`);
   await mcpServer.connect();
 });
