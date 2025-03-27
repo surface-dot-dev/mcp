@@ -6,7 +6,6 @@ import { headers, status, methods } from '../utils/http';
 import * as errors from '../errors';
 
 export class TsClient {
-
   private readonly proxyHost: string;
 
   constructor() {
@@ -18,11 +17,12 @@ export class TsClient {
 
     const parsed = outputSchema.safeParse(output);
     if (!parsed.success) {
-      throw formatError(
-        errors.INVALID_TOOL_OUTPUT,
-        parsed.error,
-        { name, input, output, outputSchema: zodToJsonSchema(outputSchema) },
-      );
+      throw formatError(errors.INVALID_TOOL_OUTPUT, parsed.error, {
+        name,
+        input,
+        output,
+        outputSchema: zodToJsonSchema(outputSchema),
+      });
     }
 
     return parsed.data as O;
@@ -48,11 +48,10 @@ export class TsClient {
     }
 
     if (resp.status !== status.SUCCESS) {
-      throw formatError(
-        errors.TOOL_CALL_RETURNED_ERROR,
-        data.error || errors.UNKNOWN_ERROR,
-        { ...payload, status: resp.status },
-      );
+      throw formatError(errors.TOOL_CALL_RETURNED_ERROR, data.error || errors.UNKNOWN_ERROR, {
+        ...payload,
+        status: resp.status,
+      });
     }
 
     return data;
