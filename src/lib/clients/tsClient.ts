@@ -1,6 +1,6 @@
-import { CallToolProxyParams } from '../types';
+import { CallToolParams } from '../types';
 
-export class TsProxy {
+export class TsClient {
   async init() {}
 
   async callTool<I, O>({
@@ -8,7 +8,7 @@ export class TsProxy {
     input,
     outputSchema,
     dataSource,
-  }: CallToolProxyParams<I>): Promise<O> {
+  }: CallToolParams<I>): Promise<O> {
     return {} as O;
   }
 }

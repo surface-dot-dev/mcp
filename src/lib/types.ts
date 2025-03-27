@@ -8,6 +8,10 @@ export {
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
+export type DataSource = {
+  source: string;
+};
+
 export type Resource = {
   uri: string;
   handle: string;
@@ -31,24 +35,39 @@ export type Tool = {
 
 export type ToolInput = z.infer<typeof ToolSchema.shape.inputSchema>;
 
-export type ToolProxyType<I, O> = (input: I, dataSource: DataSource) => Promise<O>;
+export type ToolClientType<I, O> = (input: I, dataSource: DataSource) => Promise<O>;
 
-export type NewToolProxyParams = {
+export type NewToolClientParams = {
   name: string;
   outputSchema: z.ZodType;
 };
 
-export interface ToolProxyInterface {
-  callTool<I, O>(params: CallToolProxyParams<I>): Promise<O>;
+export interface ToolClientInterface {
+  callTool<I, O>(params: CallToolParams<I>): Promise<O>;
 }
 
-export type CallToolProxyParams<I> = {
+export type CallToolParams<I> = {
   name: string;
   input: I;
   outputSchema: z.ZodType;
   dataSource: DataSource;
 };
 
-export type DataSource = {
-  source: string;
+export type CallToolProxyPayload = {
+  name: string;
+  input: any;
+}
+
+export type ToolCallResult = {
+  isError?: boolean;
+  content: ToolCallResultContent[];
 };
+
+export type ToolCallResultContent = {
+  type: ToolCallResultContentType;
+  text: string;
+};
+
+export enum ToolCallResultContentType {
+  Text = 'text',
+}

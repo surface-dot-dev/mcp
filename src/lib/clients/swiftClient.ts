@@ -1,6 +1,6 @@
-import { CallToolProxyParams } from '../types';
+import { CallToolParams } from '../types';
 
-export class SwiftProxy {
+export class SwiftClient {
   async init() {}
 
   async callTool<I, O>({
@@ -8,7 +8,7 @@ export class SwiftProxy {
     input,
     outputSchema,
     dataSource,
-  }: CallToolProxyParams<I>): Promise<O> {
+  }: CallToolParams<I>): Promise<O> {
     return {} as O;
   }
 }
