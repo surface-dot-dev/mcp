@@ -95,10 +95,25 @@ async function proxyToolCall(req: http.IncomingMessage, res: http.ServerResponse
 const httpProxy = http.createServer();
 
 httpProxy.on('request', async (req, res) => {
+  // Add CORS headers.
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Preflight OPTIONS request.
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
+  // Handle tool call.
   if (req.method === methods.POST && req.url === PROXY_TOOL_CALL_PATH) {
     await proxyToolCall(req, res);
     return;
   }
+
+  // 404 everything else.
   res.writeHead(status.NOT_FOUND, headers.JSON);
   res.end(JSON.stringify({ error: errors.ROUTE_NOT_SUPPORTED }));
 });
