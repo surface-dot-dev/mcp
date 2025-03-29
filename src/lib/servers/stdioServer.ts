@@ -4,15 +4,17 @@ import { match } from 'path-to-regexp';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as errors from '../errors';
+import { JSON_MIME_TYPE } from '../constants';
 import {
   Tool,
-  Resources,
   ToolInput,
   CallToolRequestSchema,
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
+  Resources,
   ResourceType,
+  ReadResourceParams,
 } from '../types';
 
 const DEFAULT_SERVER_OPTS = {
@@ -154,7 +156,7 @@ export class StdioServer {
       const path = uri.replace(root, '');
       const matchPath = match(pathTemplate);
       const parsed = matchPath(path) || ({} as any);
-      const params = parsed.params || {};
+      const params = parsed.params || ({} as ReadResourceParams);
       const resourceTypeName = params.resourceType;
       if (!resourceTypeName) {
         const error = formatError(errors.INVALID_RESOURCE_URI, uri);
@@ -172,9 +174,10 @@ export class StdioServer {
 
       // Read resource of given type.
       try {
-        const resource = await resourceType.read(uri, params);
-        const contents = Array.isArray(resource) ? resource : [resource];
-        return { contents };
+        const data = await resourceType.read(params);
+        const mimeType = resourceType.mimeType;
+        const text = mimeType === JSON_MIME_TYPE ? JSON.stringify(data) : data;
+        return { contents: [{ uri, mimeType, text }] };
       } catch (err) {
         const error = formatError(errors.READING_RESOURCE_FAILED, err, { uri });
         logger.error(error);

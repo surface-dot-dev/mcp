@@ -24,17 +24,19 @@ export type Resources = {
 
 export type ResourceType = {
   name: string;
+  mimeType: string;
   list: () => Promise<Resource[]>;
-  read: (uri: string, params: Record<string, string>) => Promise<Resource>;
+  read: (params: ReadResourceParams) => Promise<any>;
 };
+
+export type ReadResourceParams = Record<string, string>;
 
 export type Resource = {
   uri: string;
-  name?: string;
-  description?: string;
-  mimeType?: string;
-  handle?: string;
-  text?: string;
+  name: string;
+  description: string;
+  mimeType: string;
+  handle: string;
 };
 
 export type Tool = {
