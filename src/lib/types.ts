@@ -27,6 +27,7 @@ export type ResourceType = {
   mimeType: string;
   list: () => Promise<Resource[]>;
   read: (params: ReadResourceParams) => Promise<any>;
+  hash: () => Promise<string>;
 };
 
 export type ReadResourceParams = Record<string, string>;
