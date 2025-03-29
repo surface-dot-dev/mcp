@@ -38,3 +38,7 @@ export const RESOURCES_NOT_CONFIGURED = 'MCP server not currently configured for
 export const UNKNOWN_RESOURCE_TYPE = 'Unknown resource type';
 
 export const INVALID_RESOURCE_URI = 'Invalid resource URI';
+
+export const HASHING_RESOURCES_LIST_FAILED = 'Failed to hash resources list';
+
+export const NOTIFICATION_FAILED = 'Failed to send notification';

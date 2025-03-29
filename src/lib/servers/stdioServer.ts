@@ -1,10 +1,10 @@
-import { logger, formatError } from '@surface.dev/utils';
+import { logger, formatError, md5 } from '@surface.dev/utils';
 import { zodToJsonSchema } from 'zod-to-json-schema';
 import { match } from 'path-to-regexp';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import * as errors from '../errors';
-import { JSON_MIME_TYPE } from '../constants';
+import { JSON_MIME_TYPE, RESOURCE_LIST_CHANGED_NOTIFICATION } from '../constants';
 import {
   Tool,
   ToolInput,
@@ -17,11 +17,17 @@ import {
   ReadResourceParams,
 } from '../types';
 
-const DEFAULT_SERVER_OPTS = {
+const DEFAULT_MCP_SERVER_OPTS = {
   capabilities: {
     tools: {},
-    resources: {},
+    resources: {
+      listChanged: true,
+    },
   },
+};
+
+const DEFAULT_OPTS = {
+  resourceListChangeDetectionInterval: 30000,
 };
 
 export type StdioServerParams = {
@@ -29,23 +35,33 @@ export type StdioServerParams = {
   version: string;
   tools?: Tool[];
   resources?: Resources;
+  opts?: StdioServerOpts;
+};
+
+export type StdioServerOpts = {
+  resourceListChangeDetectionInterval?: number;
 };
 
 export class StdioServer {
   name: string;
   version: string;
   tools: Tool[];
-  toolsMap: Record<string, Tool> = {};
   resources?: Resources;
-  resourceTypesMap: Record<string, ResourceType> = {};
+  opts: StdioServerOpts;
+
+  private toolsMap: Record<string, Tool> = {};
+  private resourceTypesMap: Record<string, ResourceType> = {};
   private server: Server;
   private transport: StdioServerTransport;
+  private resourceListHash: string | null = null;
+  private resourceListChangeDetectionJob: any = null;
 
-  constructor({ name, version, tools, resources }: StdioServerParams) {
+  constructor({ name, version, tools, resources, opts = {} }: StdioServerParams) {
     this.name = name;
     this.version = version;
     this.tools = tools || [];
     this.resources = resources;
+    this.opts = { ...DEFAULT_OPTS, ...opts };
 
     // Map tools & resource types by name.
     this.tools.forEach((tool) => {
@@ -56,7 +72,7 @@ export class StdioServer {
     });
 
     // MCP server & transport.
-    this.server = new Server({ name, version }, DEFAULT_SERVER_OPTS);
+    this.server = new Server({ name, version }, DEFAULT_MCP_SERVER_OPTS);
     this.transport = new StdioServerTransport();
 
     // Register tool & resource handlers.
@@ -67,6 +83,8 @@ export class StdioServer {
   }
 
   async connect() {
+    this.resourceListHash = await this._hashResourceList();
+    this._upsertResourceListChangeDetectionJob();
     await this.server.connect(this.transport);
   }
 
@@ -184,5 +202,52 @@ export class StdioServer {
         throw error;
       }
     });
+  }
+
+  // ============================
+  //  Resource Change Detection
+  // ============================
+
+  _upsertResourceListChangeDetectionJob() {
+    this.resourceListChangeDetectionJob =
+      this.resourceListChangeDetectionJob ||
+      setInterval(
+        () => this._detectChangesInResourceList(),
+        this.opts.resourceListChangeDetectionInterval
+      );
+  }
+
+  async _detectChangesInResourceList() {
+    const newResourceListHash = await this._hashResourceList();
+    if (!newResourceListHash) return;
+
+    // Notify the client any time the resources list has changed.
+    if (this.resourceListHash !== newResourceListHash) {
+      this.resourceListHash = newResourceListHash;
+      await this._notify(RESOURCE_LIST_CHANGED_NOTIFICATION);
+    }
+  }
+
+  async _hashResourceList(): Promise<string | null> {
+    const resourceTypes = this.resources?.types || [];
+    try {
+      const hashes = await Promise.all(resourceTypes.map((rt) => rt.hash()));
+      return md5(hashes.join(':'));
+    } catch (err) {
+      logger.error(formatError(errors.HASHING_RESOURCES_LIST_FAILED, err));
+      return null;
+    }
+  }
+
+  // ====================================
+  //  One-Way Notifications from Server
+  // ====================================
+
+  async _notify(method: string) {
+    try {
+      await this.server.notification({ method });
+    } catch (err) {
+      logger.error(formatError(errors.NOTIFICATION_FAILED, err, { method }));
+    }
   }
 }

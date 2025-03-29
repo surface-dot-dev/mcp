@@ -6,6 +6,7 @@ export {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
   ReadResourceRequestSchema,
+  ResourceListChangedNotificationSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 
 export type DataSource = {
