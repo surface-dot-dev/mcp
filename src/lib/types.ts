@@ -12,18 +12,29 @@ export type DataSource = {
   source: string;
 };
 
-export type Resource = {
-  uri: string;
-  handle: string;
-  name?: string;
-  mimeType?: string;
-  description?: string;
-  text?: string;
+export type ResourcesUriSpec = {
+  root: string;
+  pathTemplate: string;
 };
 
 export type Resources = {
+  uri: ResourcesUriSpec;
+  types: ResourceType[];
+};
+
+export type ResourceType = {
+  name: string;
   list: () => Promise<Resource[]>;
-  read: (uri: string) => Promise<Resource>;
+  read: (uri: string, params: Record<string, string>) => Promise<Resource>;
+};
+
+export type Resource = {
+  uri: string;
+  name?: string;
+  description?: string;
+  mimeType?: string;
+  handle?: string;
+  text?: string;
 };
 
 export type Tool = {

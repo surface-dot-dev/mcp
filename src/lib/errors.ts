@@ -33,4 +33,8 @@ export const LISTING_RESOURCES_FAILED = 'Failed to list resources';
 
 export const READING_RESOURCE_FAILED = 'Failed to read resource';
 
-export const READ_RESOURCE_NOT_CONFIGURED = 'MCP server not currently configured to read resources';
+export const RESOURCES_NOT_CONFIGURED = 'MCP server not currently configured for resources';
+
+export const UNKNOWN_RESOURCE_TYPE = 'Unknown resource type';
+
+export const INVALID_RESOURCE_URI = 'Invalid resource URI';
