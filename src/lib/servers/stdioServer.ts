@@ -83,8 +83,10 @@ export class StdioServer {
   }
 
   async connect() {
-    this.resourceListHash = await this._hashResourceList();
-    this._upsertResourceListChangeDetectionJob();
+    if (this.resources?.types?.length) {
+      this.resourceListHash = await this._hashResourceList();
+      this._upsertResourceListChangeDetectionJob();
+    }
     await this.server.connect(this.transport);
   }
 
