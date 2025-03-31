@@ -226,7 +226,7 @@ export class StdioServer {
     // Notify the client any time the resources list has changed.
     if (this.resourceListHash !== newResourceListHash) {
       this.resourceListHash = newResourceListHash;
-      await this._notify(RESOURCE_LIST_CHANGED_NOTIFICATION);
+      await this._notifyClient(RESOURCE_LIST_CHANGED_NOTIFICATION);
     }
   }
 
@@ -242,10 +242,10 @@ export class StdioServer {
   }
 
   // ====================================
-  //  One-Way Notifications from Server
+  //  One-Way Notifications
   // ====================================
 
-  async _notify(method: string) {
+  async _notifyClient(method: string) {
     try {
       await this.server.notification({ method });
     } catch (err) {
